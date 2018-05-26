@@ -1,0 +1,84 @@
+<script type="text/javascript">
+    RED.nodes.registerType('flexible-scheduler',{
+        category: 'function',
+        color: '#E6E0F8',
+        defaults: {
+            name: {value:""}
+        },
+        inputs:1,
+        allRuleContainerHtmls:1,
+        icon: "file.png",
+        label: function() {
+            return this.name||"flexible-scheduler";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="flexible-scheduler">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row node-input-rule-container-row">
+        <ol id="node-input-rule-container"></ol>
+    </div>
+</script>
+
+<script type="text/javascript">
+    allRuleContainerHtml = `
+        <div>
+            <div>
+                <label for="rule-value">Value</label></br>
+                <input id="rule-value" type="text" placeholder="Value">
+            </div>
+            <div class="form-row node-input-rule-container-row">
+                <ol id="rule-condtion-container"></ol>
+            </div>
+        <div>`;
+
+    individualRuleContainerHtml = `
+        <div>
+            <input type='text' id='input-property'>
+            <select margin-left="5px" text-align="center">
+            <input type='text' id='input-value'>
+        </div>`
+    
+    RED.nodes.registerType('flexible-scheduler', {
+        label: "flexible scheduler",
+        color: "#E6E0F8",
+        oneditprepare: function() {
+            var node = this;
+            $("#node-input-rule-container").css('min-width','550px')
+                                           .editableList({
+                addButton: true,
+                height: "auto",
+                sortable: true,
+                removable: true,
+                addItem: function(row, index, data) {
+                    $(row).find('#rule-value').css('width', '60px')
+                    $(row).html(allRuleContainerHtml)
+                    $(row).find("#rule-condtion-container").editableList({
+                        addButton: 'Add time condition',
+                        height: "auto",
+                        removable: true,
+                        addItem: function(row, index, data) {
+                            $(row).html(individualRuleContainerHtml)
+                            row.find("#input-property")
+                               .typedInput({default:this.propertyType||'global',
+                                           types:['flow','global','jsonata']})
+                            row.find("select").css("width", "50px")
+                            row.find("#input-value")
+                               .typedInput({default:this.propertyType||'num',
+                                           types:['flow','global','num','str',
+                                                  'bool','re','date','jsonata']})
+                        }
+                    })
+                }
+                                           })
+        }
+    })
+</script>
+
+<script type="text/x-red" data-help-name="flexible-scheduler">
+    <p>Aqsfdqqs simple node that converts the message payloads into all flexible-scheduler characters</p>
+</script>

@@ -25,57 +25,108 @@
 </script>
 
 <script type="text/javascript">
-    allRuleContainerHtml = `
-        <div>
-            <div>
-                <label for="rule-value">Value</label></br>
-                <input id="rule-value" type="text" placeholder="Value">
-            </div>
-            <div class="form-row node-input-rule-container-row">
-                <ol id="rule-condtion-container"></ol>
-            </div>
-        <div>`;
-
-    individualRuleContainerHtml = `
-        <div>
-            <input type='text' id='input-property'>
-            <select margin-left="5px" text-align="center">
-            <input type='text' id='input-value'>
-        </div>`
+    function onEditPrepareF() {
+        var node = this;
+        $("#node-input-rule-container").css('min-width','850px')
+                                       .editableList({
+                                           addButton: "Add rule (first match)",
+                                           height: "auto",
+                                           sortable: true,
+                                           removable: true,
+                                           addItem: addItemRulesContainer})
+    }
     
-    RED.nodes.registerType('flexible-scheduler', {
-        label: "flexible scheduler",
-        color: "#E6E0F8",
-        oneditprepare: function() {
-            var node = this;
-            $("#node-input-rule-container").css('min-width','550px')
-                                           .editableList({
-                addButton: true,
+    function addItemRulesContainer(row, index, data) {
+        var valueHolder = $("<div id='value-holder'></div>");
+        var editablelistHolder = $("<div id='editable-list-holder'></div>");
+        var conditionsPlaceholder = $("<div id='conditions-placeholder'></div>");
+        var timesPlaceholder = $("<div id='times-placeholder'></div>");
+        valueHolder.appendTo($(row))
+                   .css("margin", "5px");
+        editablelistHolder.appendTo($(row));
+        $(row).find("div").css("display", "inline-block");
+        conditionsPlaceholder.appendTo($(row).find("div#editable-list-holder"));
+        timesPlaceholder.appendTo($(row).find("div#editable-list-holder"));
+
+        $("<label for='rule-value'>Value</label></br>").appendTo(valueHolder);
+        $("<input id='rule-value' type='text' placeholder='Value'>").appendTo(valueHolder);
+        $("input#rule-value").css("width", "100px");
+        
+        var conditionsContainer = $("<ol id='conditions-container'></ol>");
+        var timesContainer = $("<ol id='times-container'></ol>");
+        conditionsContainer.appendTo(conditionsPlaceholder);
+        timesContainer.appendTo(timesPlaceholder);
+
+        conditionsContainer.editableList({
+                addButton: "Add condition (logical AND)",
                 height: "auto",
                 sortable: true,
                 removable: true,
-                addItem: function(row, index, data) {
-                    $(row).find('#rule-value').css('width', '60px')
-                    $(row).html(allRuleContainerHtml)
-                    $(row).find("#rule-condtion-container").editableList({
-                        addButton: 'Add time condition',
-                        height: "auto",
-                        removable: true,
-                        addItem: function(row, index, data) {
-                            $(row).html(individualRuleContainerHtml)
-                            row.find("#input-property")
-                               .typedInput({default:this.propertyType||'global',
-                                           types:['flow','global','jsonata']})
-                            row.find("select").css("width", "50px")
-                            row.find("#input-value")
-                               .typedInput({default:this.propertyType||'num',
-                                           types:['flow','global','num','str',
-                                                  'bool','re','date','jsonata']})
-                        }
-                    })
-                }
-                                           })
-        }
+                addItem: addConditionsContainer})
+                           .width("500px");
+        
+        timesContainer.editableList({
+                addButton: "Add time condition (logical OR)",
+                height: "auto",
+                sortable: true,
+                removable: true,
+                addItem: addTimesContainer})
+                      .width("500px");
+    }
+
+    function addTimesContainer(row, index, data) {
+        var timeHolder = $("<div id='time-holder'></div>");
+        var daysOfWeekHolder = $("<div id='days-of-week-holder'></div>");
+        timeHolder.appendTo($(row));
+        daysOfWeekHolder.appendTo($(row));
+        $(row).find("div").css("display", "inline-block");
+        
+        var startTimeHolder = $("<div id='start-time-holder'></div>");
+        var endTimeHolder = $("<div id='end-time-holder'></div>");
+        startTimeHolder.appendTo(timeHolder);
+        endTimeHolder.appendTo(timeHolder);
+        timeHolder.find("div").css("display", "inline-block");
+
+        $("<p>Start time:</p>").appendTo(startTimeHolder);
+        $("<p>End time:</p>").appendTo(endTimeHolder);
+
+        var startTimeHTML = $("<input id='start-time'></input>");
+        startTimeHTML.css("placeholder", "10:00")
+                     .css("type", "text")
+                     .css("width", "45px")
+                     .appendTo(startTimeHolder);
+        var endTimeHTML = $("<input id='end-time'></input>");
+        endTimeHTML.css("placeholder", "14:00")
+                   .css("type", "text")
+                   .css("width", "45px")
+                   .appendTo(endTimeHolder);
+                
+         
+    }
+
+    function addConditionsContainer(row, index, data) {
+        var inputProperty = $("<input type='text' id='input-property'>");
+        var selectHTML = $("<select margin-left='5px' text-align='center'>");
+        var inputValueHTML = $("<input type='text' id='input-value'>");
+        inputProperty.appendTo($(row))
+                    .typedInput({default:this.propertyType||'global',
+                                       types:['flow','global','jsonata']})
+                    .typedInput("width", "195px");
+                           
+        selectHTML.appendTo($(row))
+                  .css("width", "60px")
+                  .css("margin", "5px");
+        inputValueHTML.appendTo($(row))
+                      .typedInput({default:this.propertyType||'str',
+                                  types:['str','num','bool',
+                                         'json','bin','re','date']})
+                      .typedInput("width","180px");
+    }
+
+    RED.nodes.registerType('flexible-scheduler', {
+        label: "flexible scheduler",
+        color: "#E6E0F8",
+        oneditprepare: onEditPrepareF
     })
 </script>
 

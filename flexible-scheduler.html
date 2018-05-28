@@ -25,6 +25,28 @@
 </script>
 
 <script type="text/javascript">
+    var operators = [
+        {v:"eq",t:"==",kind:'V'},
+        {v:"neq",t:"!=",kind:'V'},
+        {v:"lt",t:"<",kind:'V'},
+        {v:"lte",t:"<=",kind:'V'},
+        {v:"gt",t:">",kind:'V'},
+        {v:"gte",t:">=",kind:'V'},
+        {v:"btwn",t:"is between",kind:'V'},
+        {v:"cont",t:"switch.rules.cont",kind:'V'},
+        {v:"regex",t:"switch.rules.regex",kind:'V'},
+        {v:"true",t:"true",kind:'V'},
+        {v:"false",t:"switch.rules.false",kind:'V'},
+        {v:"null",t:"switch.rules.null",kind:'V'},
+        {v:"nnull",t:"switch.rules.nnull",kind:'V'},
+        {v:"istype",t:"switch.rules.istype",kind:'V'},
+        {v:"head",t:"switch.rules.head",kind:'S'},
+        {v:"index",t:"switch.rules.index",kind:'S'},
+        {v:"tail",t:"switch.rules.tail",kind:'S'},
+        {v:"jsonata_exp",t:"switch.rules.exp",kind:'O'},
+        {v:"else",t:"otherwise",kind:'O'}
+    ];
+
     function onEditPrepareF() {
         var node = this;
         $("#node-input-rule-container").css('min-width','850px')
@@ -37,23 +59,25 @@
     }
     
     function addItemRulesContainer(row, index, data) {
-        var valueHolder = $("<div id='value-holder'></div>");
-        var editablelistHolder = $("<div id='editable-list-holder'></div>");
-        var conditionsPlaceholder = $("<div id='conditions-placeholder'></div>");
-        var timesPlaceholder = $("<div id='times-placeholder'></div>");
+        var valueHolder = $("<div/>", {id:'value-holder'});
+        var editablelistHolder = $("<div/>", {id:'editable-list-holder'});
+        var conditionsPlaceholder = $("<div/>", {id:'conditions-placeholder'});
+        var timesPlaceholder = $("<div/>", {id:'times-placeholder'});
         valueHolder.appendTo($(row))
                    .css("margin", "5px");
         editablelistHolder.appendTo($(row));
         $(row).find("div").css("display", "inline-block");
-        conditionsPlaceholder.appendTo($(row).find("div#editable-list-holder"));
-        timesPlaceholder.appendTo($(row).find("div#editable-list-holder"));
+        conditionsPlaceholder.appendTo($(row).find("div#editable-list-holder"))
+                             .css("margin", "5px");
+        timesPlaceholder.appendTo($(row).find("div#editable-list-holder"))
+                        .css("margin", "5px");
 
         $("<label for='rule-value'>Value</label></br>").appendTo(valueHolder);
-        $("<input id='rule-value' type='text' placeholder='Value'>").appendTo(valueHolder);
+        $("<input/>", {id:'rule-value', type:'text', placeholder:'Value'}).appendTo(valueHolder);
         $("input#rule-value").css("width", "100px");
         
-        var conditionsContainer = $("<ol id='conditions-container'></ol>");
-        var timesContainer = $("<ol id='times-container'></ol>");
+        var conditionsContainer = $("<ol/>", {id:'conditions-container'});
+        var timesContainer = $("<ol/>", {id:'times-container'});
         conditionsContainer.appendTo(conditionsPlaceholder);
         timesContainer.appendTo(timesPlaceholder);
 
@@ -75,52 +99,295 @@
     }
 
     function addTimesContainer(row, index, data) {
-        var timeHolder = $("<div id='time-holder'></div>");
-        var daysOfWeekHolder = $("<div id='days-of-week-holder'></div>");
+        var timeHolder = $("<div/>", {id:'time-holder'});
+        var daysOfWeekHolder = $("<div/>", {id:'days-of-week-holder'});
         timeHolder.appendTo($(row));
         daysOfWeekHolder.appendTo($(row));
         $(row).find("div").css("display", "inline-block");
         
-        var startTimeHolder = $("<div id='start-time-holder'></div>");
+        var startTimeHolder = $("<div/>", {id:'start-time-holder'});
         var endTimeHolder = $("<div id='end-time-holder'></div>");
-        startTimeHolder.appendTo(timeHolder);
-        endTimeHolder.appendTo(timeHolder);
+        startTimeHolder.css("margin", "5px")
+                       .appendTo(timeHolder);
+        endTimeHolder.css("margin", "5px")
+                     .appendTo(timeHolder);
         timeHolder.find("div").css("display", "inline-block");
 
         $("<p>Start time:</p>").appendTo(startTimeHolder);
         $("<p>End time:</p>").appendTo(endTimeHolder);
 
-        var startTimeHTML = $("<input id='start-time'></input>");
-        startTimeHTML.css("placeholder", "10:00")
-                     .css("type", "text")
-                     .css("width", "45px")
+        var startTimeHTML = $("<input/>", {id:'start-time', placeholder:"10:00"});
+        startTimeHTML.css("type", "text")
+                     .css("width", "55px")
                      .appendTo(startTimeHolder);
-        var endTimeHTML = $("<input id='end-time'></input>");
-        endTimeHTML.css("placeholder", "14:00")
-                   .css("type", "text")
-                   .css("width", "45px")
+        var endTimeHTML = $("<input/>", {id:'end-time', placeholder:"14:00"});
+        endTimeHTML.css("type", "text")
+                   .css("width", "55px")
+                   .css("margin", "5px")
                    .appendTo(endTimeHolder);
-                
+
+        //var weekdaySelector = $("<label><input display='hidden' type='checkbox'/>Mon</label>").appendTo(daysOfWeekHolder)
+        var daysOfWeekTable = $("<table/>", {style:"width=200px"}).appendTo(daysOfWeekHolder);
+        $("<tr/>").appendTo(daysOfWeekTable);
+        $("<th><label><input type='checkbox'/>Mon</label></th>").appendTo(daysOfWeekTable.find("tr"));
+        $("<th><label><input type='checkbox'/>Tue</label></th>").appendTo(daysOfWeekTable.find("tr"));
+        $("<th><label><input type='checkbox'/>Wed</label></th>").appendTo(daysOfWeekTable.find("tr"));
+        $("<th><label><input type='checkbox'/>Thu</label></th>").appendTo(daysOfWeekTable.find("tr"));
+        $("<th><label><input type='checkbox'/>Fri</label></th>").appendTo(daysOfWeekTable.find("tr"));
+        $("<th><label><input type='checkbox'/>Sat</label></th>").appendTo(daysOfWeekTable.find("tr"));
+        $("<th><label><input type='checkbox'/>Sun</label></th>").appendTo(daysOfWeekTable.find("tr"));
+        $(daysOfWeekTable).find("label").css("width", "2.2em");
+
          
     }
 
-    function addConditionsContainer(row, index, data) {
+    function addConditionsContainer(containerRow, index, data) {
         var inputProperty = $("<input type='text' id='input-property'>");
-        var selectHTML = $("<select margin-left='5px' text-align='center'>");
-        var inputValueHTML = $("<input type='text' id='input-value'>");
-        inputProperty.appendTo($(row))
+        inputProperty.appendTo($(containerRow))
                     .typedInput({default:this.propertyType||'global',
                                        types:['flow','global','jsonata']})
-                    .typedInput("width", "195px");
+                    .css("display", "block")
+                    .css("margin", "5px");
+        
+        //A big part of the code in this function is from the official NodeRED switch node : https://github.com/node-red/node-red/blob/master/nodes/core/logic/10-switch.html
+
+        
+        /*	function resizeRule(rule) {
+            var newWidth = rule.width();
+            var selectField = rule.find("select");
+            var type = selectField.val()||"";
+            var valueField = rule.find(".node-input-rule-value");
+            var typeField = rule.find(".node-input-rule-type-value");
+            var numField = rule.find(".node-input-rule-num-value");
+            var expField = rule.find(".node-input-rule-exp-value");
+            var btwnField1 = rule.find(".node-input-rule-btwn-value");
+            var btwnField2 = rule.find(".node-input-rule-btwn-value2");
+            var selectWidth;
+            if (type.length < 4) {
+                selectWidth = 60;
+            } else if (type === "regex") {
+                selectWidth = 147;
+            } else {
+                selectWidth = 120;
+            }
+            selectField.width(selectWidth);
+            if ((type === "btwn") || (type === "index")) {
+                btwnField1.typedInput("width",(newWidth-selectWidth-70));
+                btwnField2.typedInput("width",(newWidth-selectWidth-70));
+            } else if ((type === "head") || (type === "tail")) {
+                numField.typedInput("width",(newWidth-selectWidth-70));
+            } else if (type === "jsonata_exp") {
+                expField.typedInput("width",(newWidth-selectWidth-70));
+            } else if (type === "istype") {
+                typeField.typedInput("width",(newWidth-selectWidth-70));
+            } else {
+                if (type === "true" || type === "false" || type === "null" || type === "nnull" || type === "else") {
+                    // valueField.hide();
+                } else {
+                    valueField.typedInput("width",(newWidth-selectWidth-70));
+                }
+            }
+        }
+*/
+        var andLabel = "and";
+        var caseLabel = "Ignore case";
+        var rule = {};
+
+        var row = $('<div/>').appendTo(containerRow);
+        var row2 = $('<div/>',
+                     {style:"padding-top: 5px; padding-left: 175px;"})
+                            .appendTo(containerRow);
+        var row3 = $('<div/>',
+                    {style:"padding-top: 5px; padding-left: 102px;"})
+                            .appendTo(containerRow);
+        var selectField = $('<select/>',
+                            {style:"width:120px; margin-left: 5px; text-align: center;"})
+                                    .appendTo(row);
+        var group0 = $('<optgroup/>', { label: "value rules" })
+                            .appendTo(selectField);
+        for (var d in operators) {
+            if(operators[d].kind === 'V') {
+                group0.append($("<option></option>")
+                      .val(operators[d].v)
+                      .text(operators[d].t));
+            }
+        }
+        var group1 = $('<optgroup/>', { label: "sequence rules" }).appendTo(selectField);
+        for (var d in operators) {
+            if(operators[d].kind === 'S') {
+                group1.append($("<option></option>")
+                      .val(operators[d].v)
+                      .text(operators[d].t));
+            }
+        }
+        for (var d in operators) {
+            if(operators[d].kind === 'O') {
+                selectField.append($("<option></option>")
+                           .val(operators[d].v)
+                           .text(operators[d].t));
+            }
+        }
+        var valueField = $('<input/>',
+                           {class:"node-input-rule-value",
+                            type:"text",
+                            style:"margin-left: 5px;"})
+                                .appendTo(row)
+                                .typedInput({default:'str',
+                                            types:['msg','flow','global','str',
+                                                   'num','jsonata']});
+        var numValueField = $('<input/>',
+                              {class:"node-input-rule-num-value",
+                               type:"text",
+                               style:"margin-left: 5px;"})
+                                    .appendTo(row)
+                                    .typedInput({default:'num',
+                                                types:['flow','global','num',
+                                                       'jsonata']});
+        var expValueField = $('<input/>',
+                              {class:"node-input-rule-exp-value",
+                               type:"text",
+                               style:"margin-left: 5px;"})
+                                    .appendTo(row)
+                                    .typedInput({default:'jsonata',
+                                                types:['jsonata']});
+        var btwnValueField = $('<input/>',
+                               {class:"node-input-rule-btwn-value",
+                                type:"text",
+                                style:"margin-left: 5px;"})
+                                    .appendTo(row)
+                                    .typedInput({default:'num',
+                                                types:['msg','flow','global',
+                                                       'str','num','jsonata']});
+        var btwnAndLabel = $('<span/>',
+                             {class:"node-input-rule-btwn-label"})
+                                    .text(" "+andLabel+" ").appendTo(row3);
+        var btwnValue2Field = $('<input/>',
+                                {class:"node-input-rule-btwn-value2",
+                                 type:"text",
+                                 style:"margin-left:2px;"})
+                                        .appendTo(row3)
+                                        .typedInput({default:'num',
+                                                    types:['msg','flow','global',
+                                                           'str','num',
+                                                           'jsonata']});
+        var typeValueField = $('<input/>',
+                               {class:"node-input-rule-type-value",
+                                type:"text",
+                                style:"margin-left: 5px;"}).appendTo(row)
+            .typedInput({default:'string',types:[
+                {value:"string",label:"string",hasValue:false},
+                {value:"number",label:"number",hasValue:false},
+                {value:"boolean",label:"boolean",hasValue:false},
+                {value:"array",label:"array",hasValue:false},
+                {value:"buffer",label:"buffer",hasValue:false},
+                {value:"object",label:"object",hasValue:false},
+                {value:"json",label:"JSON string",hasValue:false},
+                {value:"undefined",label:"undefined",hasValue:false},
+                {value:"null",label:"null",hasValue:false}
+            ]});
+        var caseSensitive = $('<input/>',
+                              {id:"node-input-rule-case-"+index,
+                               class:"node-input-rule-case",
+                               type:"checkbox",
+                               style:"width:auto;vertical-align:top"})
+                                        .appendTo(row2);
+        $('<label/>',{for:"node-input-rule-case-"+index,
+                      style:"margin-left: 3px;"}).text(caseLabel).appendTo(row2);
+        selectField.change(function() {
+            //resizeRule(container);
+            var type = selectField.val();
+            if ((type === "btwn") || (type === "index")) {
+                valueField.typedInput('hide');
+                expValueField.typedInput('hide');
+                numValueField.typedInput('hide');
+                typeValueField.typedInput('hide');
+                btwnValueField.typedInput('show');
+            } else if ((type === "head") || (type === "tail")) {
+                btwnValueField.typedInput('hide');
+                btwnValue2Field.typedInput('hide');
+                expValueField.typedInput('hide');
+                numValueField.typedInput('show');
+                typeValueField.typedInput('hide');
+                valueField.typedInput('hide');
+            } else if (type === "jsonata_exp") {
+                btwnValueField.typedInput('hide');
+                btwnValue2Field.typedInput('hide');
+                expValueField.typedInput('show');
+                numValueField.typedInput('hide');
+                typeValueField.typedInput('hide');
+                valueField.typedInput('hide');
+            } else {
+                btwnValueField.typedInput('hide');
+                expValueField.typedInput('hide');
+                numValueField.typedInput('hide');
+                typeValueField.typedInput('hide');
+                valueField.typedInput('hide');
+                if (type === "true" || type === "false"
+                    || type === "null" || type === "nnull"
+                    || type === "else") {
+                    valueField.typedInput('hide');
+                    typeValueField.typedInput('hide');
+                }
+                else
+                if (type === "istype") {
+                    valueField.typedInput('hide');
+                    typeValueField.typedInput('show');
+                }
+                else {
+                    typeValueField.typedInput('hide');
+                    valueField.typedInput('show');
+                }
+            }
+            if (type === "regex") {
+                row2.show();
+                row3.hide();
+            } else if ((type === "btwn") || (type === "index")) {
+                row2.hide();
+                row3.show();
+                btwnValue2Field.typedInput('show');
+            } else {
+                row2.hide();
+                row3.hide();
+            }
+        });
+        selectField.val(rule.t);
+        if ((rule.t == "btwn") || (rule.t == "index")) {
+            btwnValueField.typedInput('value',rule.v);
+            btwnValueField.typedInput('type',rule.vt||'num');
+            btwnValue2Field.typedInput('value',rule.v2);
+            btwnValue2Field.typedInput('type',rule.v2t||'num');
+        } else if ((rule.t === "head") || (rule.t === "tail")) {
+            numValueField.typedInput('value',rule.v);
+            numValueField.typedInput('type',rule.vt||'num');
+        } else if (rule.t === "istype") {
+            typeValueField.typedInput('value',rule.vt);
+            typeValueField.typedInput('type',rule.vt);
+        } else if (rule.t === "jsonata_exp") {
+            expValueField.typedInput('value',rule.v);
+            expValueField.typedInput('type',rule.vt||'jsonata');
+        } else if (typeof rule.v != "undefined") {
+            valueField.typedInput('value',rule.v);
+            valueField.typedInput('type',rule.vt||'str');
+        }
+        if (rule.case) {
+            caseSensitive.prop('checked',true);
+        } else {
+            caseSensitive.prop('checked',false);
+        }
+        selectField.change();
+        
+        
+        var selectHTML = $("<select margin-left='5px' text-align='center'>");
+        var inputValueHTML = $("<input type='text' id='input-value'>");
                            
-        selectHTML.appendTo($(row))
+        /*selectHTML.appendTo($(row))
                   .css("width", "60px")
                   .css("margin", "5px");
         inputValueHTML.appendTo($(row))
                       .typedInput({default:this.propertyType||'str',
                                   types:['str','num','bool',
                                          'json','bin','re','date']})
-                      .typedInput("width","180px");
+                      .typedInput("width","180px");*/
     }
 
     RED.nodes.registerType('flexible-scheduler', {

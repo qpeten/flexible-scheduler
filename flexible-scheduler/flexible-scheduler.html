@@ -63,8 +63,7 @@
         var editablelistHolder = $("<div/>", {id:'editable-list-holder'});
         var conditionsPlaceholder = $("<div/>", {id:'conditions-placeholder'});
         var timesPlaceholder = $("<div/>", {id:'times-placeholder'});
-        valueHolder.appendTo($(row))
-                   .css("margin", "5px");
+        valueHolder.appendTo($(row)); 
         editablelistHolder.appendTo($(row));
         $(row).find("div").css("display", "inline-block");
         conditionsPlaceholder.appendTo($(row).find("div#editable-list-holder"))
@@ -144,10 +143,11 @@
     function addConditionsContainer(containerRow, index, data) {
         var inputProperty = $("<input type='text' id='input-property'>");
         inputProperty.appendTo($(containerRow))
-                    .typedInput({default:this.propertyType||'global',
-                                       types:['flow','global','jsonata']})
-                    .css("display", "block")
-                    .css("margin", "5px");
+                     .typedInput({default:this.propertyType||'global',
+                                  types:['flow','global','jsonata']})
+                     .css("display", "block");
+
+        $(containerRow).find("div:first").css("margin", "3px");
         
         //A big part of the code in this function is from the official NodeRED switch node : https://github.com/node-red/node-red/blob/master/nodes/core/logic/10-switch.html
 

@@ -49,7 +49,7 @@
 
     function onEditPrepareF() {
         var node = this;
-        $("#node-input-rule-container").css('min-width','850px')
+        $("#node-input-rule-container").css('min-width','575px')
                                        .editableList({
                                            addButton: "Add rule (first match)",
                                            height: "auto",
@@ -59,29 +59,25 @@
     }
     
     function addItemRulesContainer(row, index, data) {
-        var valueHolder = $("<div/>", {id:'value-holder'});
+        var daysOfWeekHolder = $("<div/>", {id:'days-of-week-holder'});
         var editablelistHolder = $("<div/>", {id:'editable-list-holder'});
         var conditionsPlaceholder = $("<div/>", {id:'conditions-placeholder'});
         var timesPlaceholder = $("<div/>", {id:'times-placeholder'});
-        valueHolder.appendTo($(row)); 
         editablelistHolder.appendTo($(row));
         $(row).find("div").css("display", "inline-block");
         conditionsPlaceholder.appendTo($(row).find("div#editable-list-holder"))
                              .css("margin", "5px");
+        daysOfWeekHolder.appendTo($(row).find("div#editable-list-holder"))
         timesPlaceholder.appendTo($(row).find("div#editable-list-holder"))
                         .css("margin", "5px");
 
-        $("<label for='rule-value'>Value</label></br>").appendTo(valueHolder);
-        $("<input/>", {id:'rule-value', type:'text', placeholder:'Value'}).appendTo(valueHolder);
-        $("input#rule-value").css("width", "100px");
-        
         var conditionsContainer = $("<ol/>", {id:'conditions-container'});
         var timesContainer = $("<ol/>", {id:'times-container'});
         conditionsContainer.appendTo(conditionsPlaceholder);
         timesContainer.appendTo(timesPlaceholder);
 
         conditionsContainer.editableList({
-                addButton: "Add condition (logical AND)",
+                addButton: "Add condition (logical OR)",
                 height: "auto",
                 sortable: true,
                 removable: true,
@@ -89,43 +85,13 @@
                            .width("500px");
         
         timesContainer.editableList({
-                addButton: "Add time condition (logical OR)",
+                addButton: "Add time",
                 height: "auto",
                 sortable: true,
                 removable: true,
                 addItem: addTimesContainer})
                       .width("500px");
-    }
-
-    function addTimesContainer(row, index, data) {
-        var timeHolder = $("<div/>", {id:'time-holder'});
-        var daysOfWeekHolder = $("<div/>", {id:'days-of-week-holder'});
-        timeHolder.appendTo($(row));
-        daysOfWeekHolder.appendTo($(row));
-        $(row).find("div").css("display", "inline-block");
         
-        var startTimeHolder = $("<div/>", {id:'start-time-holder'});
-        var endTimeHolder = $("<div id='end-time-holder'></div>");
-        startTimeHolder.css("margin", "5px")
-                       .appendTo(timeHolder);
-        endTimeHolder.css("margin", "5px")
-                     .appendTo(timeHolder);
-        timeHolder.find("div").css("display", "inline-block");
-
-        $("<p>Start time:</p>").appendTo(startTimeHolder);
-        $("<p>End time:</p>").appendTo(endTimeHolder);
-
-        var startTimeHTML = $("<input/>", {id:'start-time', placeholder:"10:00"});
-        startTimeHTML.css("type", "text")
-                     .css("width", "55px")
-                     .appendTo(startTimeHolder);
-        var endTimeHTML = $("<input/>", {id:'end-time', placeholder:"14:00"});
-        endTimeHTML.css("type", "text")
-                   .css("width", "55px")
-                   .css("margin", "5px")
-                   .appendTo(endTimeHolder);
-
-        //var weekdaySelector = $("<label><input display='hidden' type='checkbox'/>Mon</label>").appendTo(daysOfWeekHolder)
         var daysOfWeekTable = $("<table/>", {style:"width=200px"}).appendTo(daysOfWeekHolder);
         $("<tr/>").appendTo(daysOfWeekTable);
         $("<th><label><input type='checkbox'/>Mon</label></th>").appendTo(daysOfWeekTable.find("tr"));
@@ -136,6 +102,34 @@
         $("<th><label><input type='checkbox'/>Sat</label></th>").appendTo(daysOfWeekTable.find("tr"));
         $("<th><label><input type='checkbox'/>Sun</label></th>").appendTo(daysOfWeekTable.find("tr"));
         $(daysOfWeekTable).find("label").css("width", "2.2em");
+    }
+
+    function addTimesContainer(row, index, data) {
+        var timeHolder = $("<div/>", {id:'time-holder'});
+        timeHolder.appendTo($(row));
+        var valueHolder = $("<div/>", {id:'value-holder'});
+        valueHolder.appendTo($(row));
+        $(row).find("div").css("display", "inline-block");
+        
+        var startTimeHolder = $("<div/>", {id:'start-time-holder'});
+        startTimeHolder.css("margin", "5px")
+                       .appendTo(timeHolder);
+//        timeHolder.find("div").css("display", "inline-block");
+
+        $("<span>Start time: </span>").appendTo(startTimeHolder);
+
+        $("<span>Value: </span>").appendTo(valueHolder);
+        
+        var startTimeHTML = $("<input/>", {id:'start-time', placeholder:"10:00"});
+        startTimeHTML.css("type", "text")
+                     .css("width", "55px")
+                     .appendTo(startTimeHolder);
+        var endTimeHTML = $("<input/>", {id:'value', placeholder:"ON"});
+        endTimeHTML.css("type", "text")
+                 //  .css("width", "55px")
+                   .css("margin", "5px")
+                   .appendTo(valueHolder);
+
 
          
     }

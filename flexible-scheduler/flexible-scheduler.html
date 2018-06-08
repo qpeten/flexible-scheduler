@@ -145,17 +145,16 @@
         startTimeHTML.css("type", "text")
                      .css("width", "55px")
                      .appendTo(startTimeHolder);
-        var endTimeHTML = $("<input/>", {id:'value', placeholder:"ON"});
-        endTimeHTML.css("type", "text")
-                 //  .css("width", "55px")
-                   .css("margin", "5px")
-                   .appendTo(valueHolder);
+        var typedValueHTML = $("<input/>", {id:'value'});
+        typedValueHTML.appendTo(valueHolder)
+                      .typedInput({types:["str","num","bool","json","date"]});
         
         if (jQuery.isEmptyObject(data)) {
             return
         }
         startTimeHTML.val(data.time.hour + ':' + data.time.min);
-        endTimeHTML.val(data.value); 
+        typedValueHTML.typedInput("type", data.valueType)
+                      .typedInput("value", data.value); 
     }
 
     function addConditionsContainer(containerRow, index, data) {
@@ -423,7 +422,8 @@
             //Manage time conditions
             this.find('#times-container > li').each(function parseTimeCondition (i, obj) {
                 var timeCondition = {time:{hour:0, min:0}, value:''};
-                timeCondition.value = $(obj).find('input#value').val();
+                timeCondition.value = $(obj).find('input#value').typedInput('value');
+                timeCondition.valueType = $(obj).find('input#value').typedInput('type');
                 timeCondition.time = parseTime($(obj).find('input#start-time').val());
                 rule.timeConditions.push(timeCondition);
             });

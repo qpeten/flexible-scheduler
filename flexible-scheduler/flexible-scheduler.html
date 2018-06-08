@@ -71,7 +71,7 @@
     function addItemRulesContainer(row, index, data) {
         //Setting defaults if need be
         if (jQuery.isEmptyObject(data)) {
-            data = {r:{daysOfWeek:[true,true,true,true,true,true,true]}, i:0};
+            data = {r:{daysOfWeek:[true,true,true,true,true,true,true], timeConditions:[]}, i:0};
         }
         $("#test").text(JSON.stringify(data));
         var daysOfWeekHolder = $("<div/>", {id:'days-of-week-holder'});
@@ -106,7 +106,7 @@
                 removable: true,
                 addItem: addTimesContainer})
                       .width("500px");
-        
+
         var daysOfWeekTable = $("<table/>", {id:"days-of-week-table", style:"width=200px"}).appendTo(daysOfWeekHolder);
         $("<tr/>").appendTo(daysOfWeekTable);
         for (var i=0; i<daysOfWeekShort.length; i++) {
@@ -117,6 +117,11 @@
             daysOfWeekTable.find("input:last").prop("checked", data.r.daysOfWeek[i]);
         }
         $(daysOfWeekTable).find("label").css("width", "2.2em");
+
+        for (var i=0; i<data.r.timeConditions.length; i++) {
+            var timeCondition = data.r.timeConditions[i];
+            timesContainer.editableList('addItem', timeCondition);
+        }
 
     }
 
@@ -145,9 +150,12 @@
                  //  .css("width", "55px")
                    .css("margin", "5px")
                    .appendTo(valueHolder);
-
-
-         
+        
+        if (jQuery.isEmptyObject(data)) {
+            return
+        }
+        startTimeHTML.val(data.time.hour + ':' + data.time.min);
+        endTimeHTML.val(data.value); 
     }
 
     function addConditionsContainer(containerRow, index, data) {

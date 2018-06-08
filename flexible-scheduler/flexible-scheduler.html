@@ -119,10 +119,14 @@
         $(daysOfWeekTable).find("label").css("width", "2.2em");
 
         for (var i=0; i<data.r.timeConditions.length; i++) {
-            var timeCondition = data.r.timeConditions[i];
-            timesContainer.editableList('addItem', timeCondition);
+            var condition = data.r.timeConditions[i];
+            timesContainer.editableList('addItem', condition);
         }
 
+        for (var i=0; i<data.r.primaryConditions.length; i++) {
+            var condition = data.r.primaryConditions[i];
+            conditionsContainer.editableList('addItem', condition);
+        }
     }
 
     function addTimesContainer(row, index, data) {
@@ -162,7 +166,9 @@
         inputProperty.appendTo($(containerRow))
                      .typedInput({default:this.propertyType||'global',
                                   types:['flow','global','jsonata']})
-                     .css("display", "block");
+                     .css("display", "block")
+                     .typedInput('type', data.propertyType)
+                     .typedInput('value', data.propertyValue);
 
         $(containerRow).find("div:first").css("margin", "3px");
         
@@ -421,13 +427,23 @@
             
             //Manage time conditions
             this.find('#times-container > li').each(function parseTimeCondition (i, obj) {
-                var timeCondition = {time:{hour:0, min:0}, value:''};
+                var condition = {time:{hour:0, min:0}, value:''};
                 timeCondition.value = $(obj).find('input#value').typedInput('value');
                 timeCondition.valueType = $(obj).find('input#value').typedInput('type');
                 timeCondition.time = parseTime($(obj).find('input#start-time').val());
-                rule.timeConditions.push(timeCondition);
+                rule.timeConditions.push(condition);
             });
-        
+            
+            //Manage primary condition
+            this.find('#conditions-container > li').each(function parseConditionsContainer (i, obj) {
+                var condition = {};
+                propertyHTML = $(obj).find('>div>div:first input');
+
+                condition.propertyType = propertyHTML.typedInput('type');
+                condition.propertyValue = propertyHTML.typedInput('value');
+
+                rule.primaryConditions.push(condition);
+            });
             //Finish
             console.log(rule);
             node.rules.push(rule);

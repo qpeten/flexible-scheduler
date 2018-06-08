@@ -405,12 +405,38 @@
         node.rules = [];
         var items = $("#node-input-rule-container").editableList('items');
         items.each(function saveRule(item) {
-            var rule = {daysOfWeek:[]};
-            this.find("#days-of-week-table").find("input").each(function (i, obj) {
+            var rule = {daysOfWeek:[], primaryConditions:[], timeConditions:[]};
+            
+            //Manage daysOfWeek
+            this.find("#days-of-week-table input").each(function (i, obj) {
                 rule.daysOfWeek.push($(obj).prop("checked"))
             });
+            
+            //Manage time conditions
+            this.find('#times-container > li').each(function parseTimeCondition (i, obj) {
+                var timeCondition = {time:{hour:0, min:0}, value:''};
+                timeCondition.value = $(obj).find('input#value').val();
+                timeCondition.time = parseTime($(obj).find('input#start-time').val());
+                rule.timeConditions.push(timeCondition);
+            });
+        
+            //Finish
+            console.log(rule);
             node.rules.push(rule);
         });
+    }
+
+    function parseTime(str) {
+        if (str == null) {
+            return {hour:0, min:0};
+        }
+        var tmp = str.split(':');
+        var hour = tmp[0];
+        var min = 0
+        if (tmp[1] != undefined) {
+            min = tmp[1];
+        }
+        return {hour:hour, min:min};
     }
 
     RED.nodes.registerType('flexible-scheduler', {

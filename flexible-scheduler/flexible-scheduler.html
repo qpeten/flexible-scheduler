@@ -17,7 +17,8 @@
 <script type="text/x-red" data-template-name="flexible-scheduler">
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <input type="text" id="node-input-name" placeholder="Name"></br>
+        <span id='test'></span>
     </div>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
@@ -25,6 +26,7 @@
 </script>
 
 <script type="text/javascript">
+    var daysOfWeekShort = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
     var operators = [
         {v:"eq",t:"==",kind:'V'},
         {v:"neq",t:"!=",kind:'V'},
@@ -49,16 +51,26 @@
 
     function onEditPrepareF() {
         var node = this;
+        //$("#test").text(JSON.stringify(node.rules));
         $("#node-input-rule-container").css('min-width','575px')
                                        .editableList({
                                            addButton: "Add rule (first match)",
                                            height: "auto",
                                            sortable: true,
                                            removable: true,
-                                           addItem: addItemRulesContainer})
+                                           addItem: addItemRulesContainer});
+        for (var i=0;i<this.rules.length;i++) {
+            var rule = this.rules[i];
+            $('#node-input-rule-container').editableList('addItem',{r:rule,i:i});
+        }
     }
     
     function addItemRulesContainer(row, index, data) {
+        //Setting defaults if need be
+        if (jQuery.isEmptyObject(data)) {
+            data = {r:{daysOfWeek:[true,true,true,true,true,true,true]}, i:0};
+        }
+        $("#test").text(JSON.stringify(data));
         var daysOfWeekHolder = $("<div/>", {id:'days-of-week-holder'});
         var editablelistHolder = $("<div/>", {id:'editable-list-holder'});
         var conditionsPlaceholder = $("<div/>", {id:'conditions-placeholder'});
@@ -94,14 +106,15 @@
         
         var daysOfWeekTable = $("<table/>", {style:"width=200px"}).appendTo(daysOfWeekHolder);
         $("<tr/>").appendTo(daysOfWeekTable);
-        $("<th><label><input type='checkbox'/>Mon</label></th>").appendTo(daysOfWeekTable.find("tr"));
-        $("<th><label><input type='checkbox'/>Tue</label></th>").appendTo(daysOfWeekTable.find("tr"));
-        $("<th><label><input type='checkbox'/>Wed</label></th>").appendTo(daysOfWeekTable.find("tr"));
-        $("<th><label><input type='checkbox'/>Thu</label></th>").appendTo(daysOfWeekTable.find("tr"));
-        $("<th><label><input type='checkbox'/>Fri</label></th>").appendTo(daysOfWeekTable.find("tr"));
-        $("<th><label><input type='checkbox'/>Sat</label></th>").appendTo(daysOfWeekTable.find("tr"));
-        $("<th><label><input type='checkbox'/>Sun</label></th>").appendTo(daysOfWeekTable.find("tr"));
+        for (var i=0; i<daysOfWeekShort.length; i++) {
+            htmlString = "<th><label><input type='checkbox'/>"
+                         + daysOfWeekShort[i]
+                         + "</label></th>"
+            $(htmlString).appendTo(daysOfWeekTable.find("tr"));
+            daysOfWeekTable.find("input:last").prop("checked", data.r.daysOfWeek[i]);
+        }
         $(daysOfWeekTable).find("label").css("width", "2.2em");
+
     }
 
     function addTimesContainer(row, index, data) {
@@ -384,10 +397,28 @@
                       .typedInput("width","180px");*/
     }
 
+    function onEditSaveF () {
+        var node = this;
+        node.rules = [];
+        var rules = $("#node-input-rule-container").editableList('items');
+        rules.each(function saveRule(i) {
+            var rule = {daysOfWeek:[true,false,true,false,true,false,true]};
+            node.rules.push(rule);
+        });
+    }
+
     RED.nodes.registerType('flexible-scheduler', {
-        label: "flexible scheduler",
+        inputs:1,
+        outputs:1,
+        label: function() {
+            return this.name||"flexible-scheduler";
+        },
+        defaults:{
+            name:{value:""}
+        },
         color: "#E6E0F8",
-        oneditprepare: onEditPrepareF
+        oneditprepare: onEditPrepareF,
+        oneditsave: onEditSaveF
     })
 </script>
 

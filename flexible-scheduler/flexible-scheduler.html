@@ -18,7 +18,6 @@
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name"></br>
-        <span id='test'></span>
     </div>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
@@ -51,7 +50,6 @@
 
     function onEditPrepareF() {
         var node = this;
-        //$("#test").text(JSON.stringify(node.rules));
         $("#node-input-rule-container").css('min-width','575px')
                                        .editableList({
                                            addButton: "Add rule (first match)",
@@ -73,7 +71,6 @@
         if (jQuery.isEmptyObject(data)) {
             data = {r:{daysOfWeek:[true,true,true,true,true,true,true], timeConditions:[]}, i:0};
         }
-        $("#test").text(JSON.stringify(data));
         var daysOfWeekHolder = $("<div/>", {id:'days-of-week-holder'});
         var editablelistHolder = $("<div/>", {id:'editable-list-holder'});
         var conditionsPlaceholder = $("<div/>", {id:'conditions-placeholder'});
@@ -109,6 +106,7 @@
 
         var daysOfWeekTable = $("<table/>", {id:"days-of-week-table", style:"width=200px"}).appendTo(daysOfWeekHolder);
         $("<tr/>").appendTo(daysOfWeekTable);
+        
         for (var i=0; i<daysOfWeekShort.length; i++) {
             htmlString = "<th><label><input type='checkbox'/>"
                          + daysOfWeekShort[i]
@@ -172,6 +170,12 @@
 
         $(containerRow).find("div:first").css("margin", "3px");
         
+        var rule = {};
+        if (! jQuery.isEmptyObject(data.switchRule)){
+            var rule = data.switchRule;
+        }
+        
+        switchContainer = $("<div/>", {class:'switch-rule-container'}).appendTo(containerRow); 
         //A big part of the code in this function is from the official NodeRED switch node : https://github.com/node-red/node-red/blob/master/nodes/core/logic/10-switch.html
 
         
@@ -214,15 +218,14 @@
 */
         var andLabel = "and";
         var caseLabel = "Ignore case";
-        var rule = {};
 
-        var row = $('<div/>').appendTo(containerRow);
+        var row = $('<div/>').appendTo(switchContainer);
         var row2 = $('<div/>',
                      {style:"padding-top: 5px; padding-left: 175px;"})
-                            .appendTo(containerRow);
+                            .appendTo(switchContainer);
         var row3 = $('<div/>',
                     {style:"padding-top: 5px; padding-left: 102px;"})
-                            .appendTo(containerRow);
+                            .appendTo(switchContainer);
         var selectField = $('<select/>',
                             {style:"width:120px; margin-left: 5px; text-align: center;"})
                                     .appendTo(row);
@@ -428,9 +431,9 @@
             //Manage time conditions
             this.find('#times-container > li').each(function parseTimeCondition (i, obj) {
                 var condition = {time:{hour:0, min:0}, value:''};
-                timeCondition.value = $(obj).find('input#value').typedInput('value');
-                timeCondition.valueType = $(obj).find('input#value').typedInput('type');
-                timeCondition.time = parseTime($(obj).find('input#start-time').val());
+                condition.value = $(obj).find('input#value').typedInput('value');
+                condition.valueType = $(obj).find('input#value').typedInput('type');
+                condition.time = parseTime($(obj).find('input#start-time').val());
                 rule.timeConditions.push(condition);
             });
             
@@ -441,11 +444,39 @@
 
                 condition.propertyType = propertyHTML.typedInput('type');
                 condition.propertyValue = propertyHTML.typedInput('value');
+                
+                //The code below is from the default node 'switch'. See link in previous comment.
+                var switchRule = $(this).find('.switch-rule-container');
+                var type = switchRule.find("select").val();
+                var r = {t:type};
+                if (!(type === "true" || type === "false" || type === "null" || type === "nnull" || type === "else")) {
+                    if ((type === "btwn") || (type === "index")) {
+                        r.v = switchRule.find(".node-input-rule-btwn-value").typedInput('value');
+                        r.vt = switchRule.find(".node-input-rule-btwn-value").typedInput('type');
+                        r.v2 = switchRule.find(".node-input-rule-btwn-value2").typedInput('value');
+                        r.v2t = switchRule.find(".node-input-rule-btwn-value2").typedInput('type');
+                    } else if ((type === "head") || (type === "tail")) {
+                        r.v = switchRule.find(".node-input-rule-num-value").typedInput('value');
+                        r.vt = switchRule.find(".node-input-rule-num-value").typedInput('type');
+                    } else if (type === "istype") {
+                        r.v = switchRule.find(".node-input-rule-type-value").typedInput('type');
+                        r.vt = switchRule.find(".node-input-rule-type-value").typedInput('type');
+                    } else if (type === "jsonata_exp") {
+                        r.v = switchRule.find(".node-input-rule-exp-value").typedInput('value');
+                        r.vt = switchRule.find(".node-input-rule-exp-value").typedInput('type');
+                    } else {
+                        r.v = switchRule.find(".node-input-rule-value").typedInput('value');
+                        r.vt = switchRule.find(".node-input-rule-value").typedInput('type');
+                    }
+                    if (type === "regex") {
+                        r.case = switchRule.find(".node-input-rule-case").prop("checked");
+                    }
+                }
+                condition.switchRule = r;
 
                 rule.primaryConditions.push(condition);
             });
             //Finish
-            console.log(rule);
             node.rules.push(rule);
         });
     }

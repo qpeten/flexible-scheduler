@@ -40,12 +40,12 @@
         {v:"false",t:"switch.rules.false",kind:'V'},
         {v:"null",t:"switch.rules.null",kind:'V'},
         {v:"nnull",t:"switch.rules.nnull",kind:'V'},
-        {v:"istype",t:"switch.rules.istype",kind:'V'},
-        {v:"head",t:"switch.rules.head",kind:'S'},
+        {v:"istype",t:"switch.rules.istype",kind:'V'}//,
+/*        {v:"head",t:"switch.rules.head",kind:'S'},
         {v:"index",t:"switch.rules.index",kind:'S'},
         {v:"tail",t:"switch.rules.tail",kind:'S'},
-        {v:"jsonata_exp",t:"switch.rules.exp",kind:'O'},
-        {v:"else",t:"otherwise",kind:'O'}
+        {v:"jsonata_exp",t:"switch.rules.exp",kind:'O'}//,
+//        {v:"else",t:"otherwise",kind:'O'}*/
     ];
 
     function onEditPrepareF() {
@@ -163,7 +163,7 @@
         var inputProperty = $("<input type='text' id='input-property'>");
         inputProperty.appendTo($(containerRow))
                      .typedInput({default:this.propertyType||'global',
-                                  types:['flow','global','jsonata']})
+                                  types:['flow','global']})
                      .css("display", "block")
                      .typedInput('type', data.propertyType)
                      .typedInput('value', data.propertyValue);

@@ -172,6 +172,7 @@ module.exports = function(RED) {
                     return sendMessageFromSchedule(sched)
                 }
             }
+            node.lastRuleUsed = -1;
             return noValidSchuleFound();
         }
 

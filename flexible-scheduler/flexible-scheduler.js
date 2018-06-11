@@ -46,13 +46,15 @@ module.exports = function(RED) {
         function isPrimaryConditionValid(condition) {
             var rule = condition.switchRule;
             var v1,v2;
-            var test = RED.util.evaluateNodeProperty(node.property,
-                                                     node.propertyType,
-                                                     node,
-                                                     null);
+            var test = null;
+            if (condition.propertyType == 'global') {
+                test = node.context().global.get(condition.propertyValue);
+            }
+            else {
+                test = node.context().flow.get(condition.propertyValue);
+            }
             try {
                 v1 = RED.util.evaluateNodeProperty(rule.v,rule.vt,node,null);
-                //console.log(v1);
             } catch(err) {
                 v1 = undefined;
             }
@@ -67,7 +69,7 @@ module.exports = function(RED) {
                     v2 = undefined;
                 }
             }
-            return operators[rule.t](test,v1,v2,rule.case);
+            return result = operators[rule.t](test,v1,v2,rule.case);
         }
 
         function arePrimaryConditionsValid(primaryConditions) {
@@ -106,21 +108,34 @@ module.exports = function(RED) {
 
         }
 
-        function getCurrentSchedule(schedules) {
+        function noValidSchuleFound() {
+            node.status({fill:"green",shape:"ring",text:"No schedule now"});
+            return null;
+        }
+
+        function getCurrentSchedule(schedules, forceUpdate) {
             var time = new Date();
             var hour = time.getHours();
             var min = time.getMinutes();
             var scheduleToUse=-1;
             for (var i=0; i<schedules.length; i++) {
-                if (schedules[i].time.hour < hour){
-                    scheduleToUse = i;
+                if (forceUpdate) {
+                    if (schedules[i].time.hour < hour){
+                        scheduleToUse = i;
+                    }
+                    else if (schedules[i].time.hour == hour && schedules[i].time.min <= min) {
+                        scheduleToUse = i;
+                    }
                 }
-                else if (schedules[i].time.hour == hour && schedules[i].time.min <= min) {
-                    scheduleToUse = i;
+                else {
+                    if (schedules[i].time.hour == hour && schedules[i].time.min == min) {
+                        scheduleToUse = i;
+                        break;
+                    }
                 }
             }
             if (scheduleToUse == -1) {
-                node.status({fill:"green",shape:"ring",text:"No schedule now"});
+                //node.status({fill:"green",shape:"dot",text:"Continuing yesterday's sched"});
                 return null;
             }
             else {
@@ -144,7 +159,17 @@ module.exports = function(RED) {
                 currentRule = config.rules[i];
                 if (isDowValid(currentRule.daysOfWeek)
                         && arePrimaryConditionsValid(currentRule.primaryConditions)) {
-                    return sendMessageFromSchedule(getCurrentSchedule(currentRule.timeConditions));
+                    var sched = null;
+                    if (node.lastRuleUsed != null && node.lastRuleUsed != i) {
+                        sched = getCurrentSchedule(currentRule.timeConditions,
+                                                   true);
+                    }
+                    else {
+                        sched = getCurrentSchedule(currentRule.timeConditions,
+                                                   false);
+                    }
+                    node.lastRuleUsed = i;
+                    return sendMessageFromSchedule(sched)
                 }
             }
             return noValidSchuleFound();

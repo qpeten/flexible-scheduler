@@ -3,9 +3,11 @@
         category: 'function',
         color: '#E6E0F8',
         defaults: {
-            name: {value:""}
+            name:{value:""},
+            rules:{}
         },
         inputs:1,
+        output:1,
         allRuleContainerHtmls:1,
         icon: "file.png",
         label: function() {
@@ -34,13 +36,13 @@
         {v:"gt",t:">",kind:'V'},
         {v:"gte",t:">=",kind:'V'},
         {v:"btwn",t:"is between",kind:'V'},
-        {v:"cont",t:"switch.rules.cont",kind:'V'},
-        {v:"regex",t:"switch.rules.regex",kind:'V'},
+        {v:"cont",t:"cont",kind:'V'},
+        {v:"regex",t:"regex",kind:'V'},
         {v:"true",t:"true",kind:'V'},
-        {v:"false",t:"switch.rules.false",kind:'V'},
-        {v:"null",t:"switch.rules.null",kind:'V'},
-        {v:"nnull",t:"switch.rules.nnull",kind:'V'},
-        {v:"istype",t:"switch.rules.istype",kind:'V'}//,
+        {v:"false",t:"false",kind:'V'},
+        {v:"null",t:"null",kind:'V'},
+        {v:"nnull",t:"not null",kind:'V'},
+        {v:"istype",t:"is type",kind:'V'}//,
 /*        {v:"head",t:"switch.rules.head",kind:'S'},
         {v:"index",t:"switch.rules.index",kind:'S'},
         {v:"tail",t:"switch.rules.tail",kind:'S'},

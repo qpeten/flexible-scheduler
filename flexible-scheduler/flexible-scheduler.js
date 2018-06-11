@@ -79,12 +79,69 @@ module.exports = function(RED) {
             return true;
         }
 
+        function convertToType(value, type) {
+            if (type == 'num') {
+                if (!isNaN(value*1)) {
+                    return [true, value*1];
+                }
+                else {
+                    node.error(value + " is not a valid number");
+                    return [false, null];
+                }
+            }
+            else if (type == 'bool') {
+                return [true, value=='true'];
+            }
+            else if (type == 'json') {
+            try {
+                    return [true, JSON.parse(value)];
+                } catch(e) {
+                    node.error(RED._("change.errors.invalid-expr",{error:e.message}));
+                    return [false, null];
+                }
+            }
+            else {
+                return [true, value];
+            }
+
+        }
+
+        function getCurrentSchedule(schedules) {
+            var time = new Date();
+            var hour = time.getHours();
+            var min = time.getMinutes();
+            var scheduleToUse=-1;
+            for (var i=0; i<schedules.length; i++) {
+                if (schedules[i].time.hour < hour){
+                    scheduleToUse = i;
+                }
+                else if (schedules[i].time.hour == hour && schedules[i].time.min <= min) {
+                    scheduleToUse = i;
+                }
+            }
+            if (scheduleToUse == -1) {
+                node.status({fill:"green",shape:"ring",text:"No schedule now"});
+                return null;
+            }
+            else {
+                return schedules[scheduleToUse];
+            }
+        }
+
+        function sendMessageFromSchedule(schedule) {
+            var result = convertToType(schedule.value, schedule.valueType);
+            if (result[0]) {
+                node.status({fill:'green',shape:'dot',text:result[1]});
+                return node.send({payload:result[1]});
+            }
+        }
+
         function findCurrentSchedule() {
             for (var i=0; i<config.rules.length; i++) {
                 currentRule = config.rules[i];
                 if (isDowValid(currentRule.daysOfWeek)
                         && arePrimaryConditionsValid(currentRule.primaryConditions)) {
-                    return node.send({payload:'DOW correct'});
+                    return sendMessageFromSchedule(getCurrentSchedule(currentRule.timeConditions));
                 }
             }
         }

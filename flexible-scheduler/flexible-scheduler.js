@@ -129,6 +129,9 @@ module.exports = function(RED) {
         }
 
         function sendMessageFromSchedule(schedule) {
+            if (schedule == null) {
+                return
+            }
             var result = convertToType(schedule.value, schedule.valueType);
             if (result[0]) {
                 node.status({fill:'green',shape:'dot',text:result[1]});
@@ -144,11 +147,19 @@ module.exports = function(RED) {
                     return sendMessageFromSchedule(getCurrentSchedule(currentRule.timeConditions));
                 }
             }
+            return noValidSchuleFound();
         }
 
         function evaluate() {
             return findCurrentSchedule();
         }
+
+        //Evaluate every minute
+        node.evalInterval = setInterval(evaluate, 60000);
+
+        node.on('close', function() {
+            clearInterval(node.evalInterval);
+        });
     }
     RED.nodes.registerType("flexible-scheduler", FlexibleSchedulerNode);
 }

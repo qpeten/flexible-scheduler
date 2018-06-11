@@ -135,7 +135,6 @@ module.exports = function(RED) {
                 }
             }
             if (scheduleToUse == -1) {
-                //node.status({fill:"green",shape:"dot",text:"Continuing yesterday's sched"});
                 return null;
             }
             else {
@@ -149,7 +148,7 @@ module.exports = function(RED) {
             }
             var result = convertToType(schedule.value, schedule.valueType);
             if (result[0]) {
-                node.status({fill:'green',shape:'dot',text:result[1]});
+                //node.status({fill:'green',shape:'dot',text:result[1]});
                 return node.send({payload:result[1]});
             }
         }
@@ -160,7 +159,7 @@ module.exports = function(RED) {
                 if (isDowValid(currentRule.daysOfWeek)
                         && arePrimaryConditionsValid(currentRule.primaryConditions)) {
                     var sched = null;
-                    if (node.lastRuleUsed != null && node.lastRuleUsed != i) {
+                    if (node.lastRuleUsed == null || node.lastRuleUsed != i) {
                         sched = getCurrentSchedule(currentRule.timeConditions,
                                                    true);
                     }
@@ -169,6 +168,7 @@ module.exports = function(RED) {
                                                    false);
                     }
                     node.lastRuleUsed = i;
+                    node.status({fill:"green",shape:"dot",text:"Using rule " + (i+1)});
                     return sendMessageFromSchedule(sched)
                 }
             }

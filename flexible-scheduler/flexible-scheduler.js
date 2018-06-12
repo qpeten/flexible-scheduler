@@ -87,6 +87,7 @@ module.exports = function(RED) {
                     return [true, value*1];
                 }
                 else {
+                    node.status({fill:"red",shape:"dot",text:"Number parse error"});
                     node.error(value + " is not a valid number");
                     return [false, null];
                 }
@@ -98,6 +99,7 @@ module.exports = function(RED) {
             try {
                     return [true, JSON.parse(value)];
                 } catch(e) {
+                    node.status({fill:"red",shape:"dot",text:"JSON parse error"});
                     node.error(RED._("change.errors.invalid-expr",{error:e.message}));
                     return [false, null];
                 }

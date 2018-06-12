@@ -73,6 +73,9 @@ module.exports = function(RED) {
         }
 
         function arePrimaryConditionsValid(primaryConditions) {
+            if (primaryConditions.length == 0) {
+                return true;
+            }
             for (var i=0; i<primaryConditions.length; i++) {
                 if (isPrimaryConditionValid(primaryConditions[i])) {
                     return true;

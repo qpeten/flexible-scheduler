@@ -74,11 +74,11 @@ module.exports = function(RED) {
 
         function arePrimaryConditionsValid(primaryConditions) {
             for (var i=0; i<primaryConditions.length; i++) {
-                if (!isPrimaryConditionValid(primaryConditions[i])) {
-                    return false;
+                if (isPrimaryConditionValid(primaryConditions[i])) {
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         function convertToType(value, type) {

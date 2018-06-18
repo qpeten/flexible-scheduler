@@ -1,4 +1,6 @@
 module.exports = function(RED) {
+    //Cette variable est inpiré du noeud par défaut switch.
+    //https://github.com/node-red/node-red/blob/master/nodes/core/logic/10-switch.js
     var operators = {
         'eq': function(a, b) { return a == b; },
         'neq': function(a, b) { return a != b; },
